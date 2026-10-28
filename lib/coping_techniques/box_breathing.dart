@@ -194,7 +194,7 @@ class _BoxBreathingPageState extends State<BoxBreathingPage> with SingleTickerPr
       height: 140,
       child: Center(
         child: SvgPicture.asset(
-          'assets/images/pufferfishFinal.svg',
+          'assets/images/pufferFish.svg',
           width: 140,
           height: 140,
           fit: BoxFit.contain,
@@ -247,24 +247,76 @@ class _BoxBreathingPageState extends State<BoxBreathingPage> with SingleTickerPr
     );
   }
 
+  Future<bool> _onWillPop() async {
+    // If they haven't started or they have already finished, allow exit.
+    if (!_isRunning && (_instructionText == "Ready?" || _instructionText == "Session Complete")) {
+      return true;
+    }
+
+    final shouldPop = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        final isLightMode = Theme.of(context).brightness == Brightness.light;
+        return AlertDialog(
+          backgroundColor: isLightMode ? Theme.of(context).extension<AppColorsExtension>()!.secondaryBackground : Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          title: Text(
+            'Exit Session?', 
+            style: AppTypography.titleLarge.copyWith(color: AppColors.primary),
+          ),
+          content: Text(
+            'Are you sure you want to exit before completing Box Breathing?',
+            style: AppTypography.bodyMedium.copyWith(color: isLightMode ? AppColors.textPrimary : AppColors.secondary),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text('Cancel', style: AppTypography.titleMedium.copyWith(color: AppColors.primary)),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text('Exit', style: AppTypography.titleMedium.copyWith(color: AppColors.pinkCarnation)),
+            ),
+          ],
+        );
+      }
+    );
+
+    return shouldPop ?? false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final isLightMode = Theme.of(context).brightness == Brightness.light;
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Back Button
-            Padding(
-              padding: const EdgeInsets.only(top: 8.0, left: 16.0, bottom: 8.0),
-              child: IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.primary),
-                onPressed: () => Navigator.of(context).pop(),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        final shouldPop = await _onWillPop();
+        if (shouldPop && context.mounted) {
+          Navigator.of(context).pop();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        body: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Back Button
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0, left: 16.0, bottom: 8.0),
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.primary),
+                  onPressed: () async {
+                    final shouldPop = await _onWillPop();
+                    if (shouldPop && context.mounted) {
+                      Navigator.of(context).pop();
+                    }
+                  },
+                ),
               ),
-            ),
             
             // Header Texts
             Padding(
@@ -339,6 +391,18 @@ class _BoxBreathingPageState extends State<BoxBreathingPage> with SingleTickerPr
             
             const SizedBox(height: 16),
             
+            // Cycle Indicator
+            if (_isRunning || _completedCycles > 0)
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Text(
+                    '${_completedCycles + 1}/$_targetCycles Cycles',
+                    style: AppTypography.titleMedium.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+
             // 4 Phase Containers
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -376,6 +440,7 @@ class _BoxBreathingPageState extends State<BoxBreathingPage> with SingleTickerPr
             const SizedBox(height: 32),
           ],
         ),
+      ),
       ),
     );
   }

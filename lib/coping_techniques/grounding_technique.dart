@@ -87,25 +87,78 @@ class _GroundingTechniquePageState extends State<GroundingTechniquePage> {
     );
   }
 
+  Future<bool> _onWillPop() async {
+    bool isCompleted = _currentStep >= _steps.length;
+    // Allow exit if they haven't started or if they have finished.
+    if (isCompleted || (_currentStep == 0 && _steps[_currentStep]['answers'].isEmpty)) {
+      return true;
+    }
+
+    final shouldPop = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        final isLightMode = Theme.of(context).brightness == Brightness.light;
+        return AlertDialog(
+          backgroundColor: isLightMode ? Theme.of(context).extension<AppColorsExtension>()!.secondaryBackground : Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          title: Text(
+            'Exit Session?', 
+            style: AppTypography.titleLarge.copyWith(color: AppColors.primary),
+          ),
+          content: Text(
+            'Are you sure you want to exit before completing Grounding Technique?',
+            style: AppTypography.bodyMedium.copyWith(color: isLightMode ? AppColors.textPrimary : AppColors.secondary),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text('Cancel', style: AppTypography.titleMedium.copyWith(color: AppColors.primary)),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text('Exit', style: AppTypography.titleMedium.copyWith(color: AppColors.pinkCarnation)),
+            ),
+          ],
+        );
+      }
+    );
+
+    return shouldPop ?? false;
+  }
+
   @override
   Widget build(BuildContext context) {
     bool isCompleted = _currentStep >= _steps.length;
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Floating Back Button
-              IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.primary),
-                onPressed: () => Navigator.of(context).pop(),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-              ),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        final shouldPop = await _onWillPop();
+        if (shouldPop && context.mounted) {
+          Navigator.of(context).pop();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Floating Back Button
+                IconButton(
+                  icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.primary),
+                  onPressed: () async {
+                    final shouldPop = await _onWillPop();
+                    if (shouldPop && context.mounted) {
+                      Navigator.of(context).pop();
+                    }
+                  },
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
               const SizedBox(height: 16),
               isCompleted
                   ? Expanded(child: _buildCompletedState())
@@ -227,6 +280,7 @@ class _GroundingTechniquePageState extends State<GroundingTechniquePage> {
             ],
           ),
         ),
+      ),
       ),
     );
   }

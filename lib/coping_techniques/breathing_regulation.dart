@@ -98,7 +98,6 @@ class _BreathingRegulationPageState extends State<BreathingRegulationPage> with 
   }
 
   void _startSession(int cycles) {
-    Navigator.pop(context); // Close dialog
     setState(() {
       _targetCycles = cycles;
       _completedCycles = 0;
@@ -108,68 +107,14 @@ class _BreathingRegulationPageState extends State<BreathingRegulationPage> with 
     _updatePhase();
   }
 
-  void _showModeSelector() {
-    final isLightMode = Theme.of(context).brightness == Brightness.light;
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: isLightMode ? Theme.of(context).extension<AppColorsExtension>()!.secondaryBackground : Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-          title: Text(
-            'Select Duration', 
-            style: AppTypography.titleLarge.copyWith(color: AppColors.primary),
-            textAlign: TextAlign.center,
-          ),
-          content: Text(
-            'How long would you like to practice breathing?',
-            style: AppTypography.bodyMedium.copyWith(color: isLightMode ? AppColors.textPrimary : AppColors.secondary),
-            textAlign: TextAlign.center,
-          ),
-          actionsAlignment: MainAxisAlignment.center,
-          actions: [
-            Column(
-              children: [
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () => _startSession(4), // 4 loops
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    child: Text('4 Cycles (~1 min)', style: AppTypography.titleMedium.copyWith(color: Colors.white)),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () => _startSession(16), // 5 mins = 300s. 300/19 = 15.7 (round up to 16 loops)
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.pinkCarnation,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    child: Text('5 Minutes', style: AppTypography.titleMedium.copyWith(color: Colors.white)),
-                  ),
-                ),
-              ],
-            )
-          ],
-        );
-      }
-    );
-  }
-
   void _toggleTimer() {
     if (_isRunning) {
       _controller.stop();
       setState(() => _isRunning = false);
     } else {
       if (_controller.value == 0.0 && _completedCycles == 0) {
-        _showModeSelector();
+        // Start exactly 4 cycles immediately for breathing regulation
+        _startSession(4);
       } else {
         // Resume
         _controller.forward(from: _controller.value);
@@ -190,7 +135,7 @@ class _BreathingRegulationPageState extends State<BreathingRegulationPage> with 
       width: 140, // increased to make it the highlight
       height: 140,
       child: SvgPicture.asset(
-        'assets/images/pufferfishFinal.svg',
+        'assets/images/pufferFish.svg',
         fit: BoxFit.contain,
       ),
     );
@@ -235,24 +180,76 @@ class _BreathingRegulationPageState extends State<BreathingRegulationPage> with 
     );
   }
 
+  Future<bool> _onWillPop() async {
+    // Allow exit if not started, or if session is fully complete
+    if (!_isRunning && (_instructionText == "Ready?" || _instructionText == "Session Complete")) {
+      return true;
+    }
+
+    final shouldPop = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        final isLightMode = Theme.of(context).brightness == Brightness.light;
+        return AlertDialog(
+          backgroundColor: isLightMode ? Theme.of(context).extension<AppColorsExtension>()!.secondaryBackground : Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          title: Text(
+            'Exit Session?', 
+            style: AppTypography.titleLarge.copyWith(color: AppColors.primary),
+          ),
+          content: Text(
+            'Are you sure you want to exit before completing 4-7-8 Breathing?',
+            style: AppTypography.bodyMedium.copyWith(color: isLightMode ? AppColors.textPrimary : AppColors.secondary),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text('Cancel', style: AppTypography.titleMedium.copyWith(color: AppColors.primary)),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text('Exit', style: AppTypography.titleMedium.copyWith(color: AppColors.pinkCarnation)),
+            ),
+          ],
+        );
+      }
+    );
+
+    return shouldPop ?? false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final isLightMode = Theme.of(context).brightness == Brightness.light;
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Back Button
-            Padding(
-              padding: const EdgeInsets.only(top: 8.0, left: 16.0, bottom: 8.0),
-              child: IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.primary),
-                onPressed: () => Navigator.of(context).pop(),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        final shouldPop = await _onWillPop();
+        if (shouldPop && context.mounted) {
+          Navigator.of(context).pop();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        body: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Back Button
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0, left: 16.0, bottom: 8.0),
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.primary),
+                  onPressed: () async {
+                    final shouldPop = await _onWillPop();
+                    if (shouldPop && context.mounted) {
+                      Navigator.of(context).pop();
+                    }
+                  },
+                ),
               ),
-            ),
             
             // Header Texts
             Padding(
@@ -327,6 +324,18 @@ class _BreathingRegulationPageState extends State<BreathingRegulationPage> with 
             
             const SizedBox(height: 16),
             
+            // Cycle Indicator
+            if (_isRunning || _completedCycles > 0)
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Text(
+                    '${_completedCycles + 1}/$_targetCycles Cycles',
+                    style: AppTypography.titleMedium.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+
             // 3 Phase Containers
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24.0), // Slightly more horizontal padding
@@ -363,6 +372,7 @@ class _BreathingRegulationPageState extends State<BreathingRegulationPage> with 
             const SizedBox(height: 32), // Reduced from 40
           ],
         ),
+      ),
       ),
     );
   }

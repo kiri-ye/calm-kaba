@@ -96,10 +96,10 @@ flutter:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/images/finalFish.svg"
+  image_path: "assets/images/fishLogo.png"
 
 flutter_native_splash:
   color: "#C5FF7A"
-  image: "assets/images/finalFish.svg"
+  image: "assets/images/fishLogo.png"
   android: true
   ios: true

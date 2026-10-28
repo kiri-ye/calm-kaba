@@ -11,7 +11,7 @@ class CopingTechniquesPage extends StatelessWidget {
     return GestureDetector(
       onTap: () => Navigator.pushNamed(context, route),
       child: Container(
-        height: 180, // Fixed height for a consistent grid look
+        height: 210, // Fixed height for a consistent grid look
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: isLightMode ? Theme.of(context).extension<AppColorsExtension>()!.cardBackground : Colors.white,

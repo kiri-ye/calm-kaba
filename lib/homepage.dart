@@ -3,7 +3,6 @@ import 'dart:async';
 import 'theme/design_system.dart';
 import 'services/detection_service.dart';
 import 'services/log_service.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -78,7 +77,7 @@ class _HomePageState extends State<HomePage> {
           );
         },
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12),
+          padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
             color: isSelected ? AppColors.primary : Colors.transparent,
             borderRadius: BorderRadius.circular(30),
@@ -86,8 +85,9 @@ class _HomePageState extends State<HomePage> {
           alignment: Alignment.center,
           child: Text(
             title,
-            style: AppTypography.titleSmall.copyWith(
+            style: AppTypography.bodyMedium.copyWith(
               color: isSelected ? Colors.white : AppColors.primary,
+              fontWeight: isSelected ? FontWeight.w900 : FontWeight.normal,
             ),
           ),
         ),
@@ -115,9 +115,9 @@ class _HomePageState extends State<HomePage> {
               Padding(
                 padding: EdgeInsets.fromLTRB(
                   20,
-                  20,
-                  imageSize * 0.70,
-                  20,
+                  16, // Reduced from 20 to prevent vertical overflow
+                  imageSize * 0.90, // Increased right padding to prevent text overlap with image
+                  16, // Reduced from 20 to prevent vertical overflow
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -126,20 +126,20 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     Text(
                       title,
-                      style: AppTypography.headlineSmall.copyWith(
+                      style: AppTypography.titleLarge.copyWith(
+                        color: Colors.white,
+                      ),
+                      softWrap: true,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: AppTypography.bodySmall.copyWith(
                         color: Colors.white,
                       ),
                       softWrap: true,
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      subtitle,
-                      style: AppTypography.bodyMedium.copyWith(
-                        color: Colors.white,
-                      ),
-                      softWrap: true,
-                    ),
-                    const SizedBox(height: 16),
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -185,16 +185,19 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
 
-              // SVG Image
+              // PNG Image
               Positioned(
-                right: -10, // Slight negative offset to allow overflow to the right edge
+                right: -24, // Aggressive negative offset to clip onto the right edge
+                top: 0,
                 bottom: 0,
-                child: SizedBox(
-                  width: imageSize * 1.2, // Make the SVG slightly larger than the raw calculated bounds
-                  height: imageSize * 1.2,
-                  child: SvgPicture.asset(
-                    'assets/images/finalFish.svg',
-                    fit: BoxFit.contain,
+                child: Center(
+                  child: SizedBox(
+                    width: imageSize * 1.5, // Expand size slightly to fit the container natively
+                    height: imageSize * 1.5,
+                    child: Image.asset(
+                      'assets/images/fishLogo.png',
+                      fit: BoxFit.contain,
+                    ),
                   ),
                 ),
               ),
@@ -360,7 +363,7 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
 
               // Custom Tab Bar
               Padding(
@@ -380,11 +383,11 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 12),
 
               // PageView for Camera modes
               SizedBox(
-                height: 220,
+                height: 180, // Bumped slightly to prevent bottom overflow
                 child: PageView(
                   controller: _pageController,
                   onPageChanged: (index) {

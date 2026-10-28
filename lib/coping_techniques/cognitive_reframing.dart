@@ -179,6 +179,44 @@ class _CognitiveReframingPageState
     );
   }
 
+  Future<bool> _onWillPop() async {
+    // If they have already finished let them exit.
+    if (_isSubmitted) {
+      return true;
+    }
+
+    final shouldPop = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        final isLightMode = Theme.of(context).brightness == Brightness.light;
+        return AlertDialog(
+          backgroundColor: isLightMode ? Theme.of(context).extension<AppColorsExtension>()!.secondaryBackground : Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          title: Text(
+            'Exit Session?', 
+            style: AppTypography.titleLarge.copyWith(color: AppColors.primary),
+          ),
+          content: Text(
+            'Are you sure you want to exit before completing Cognitive Reframing?',
+            style: AppTypography.bodyMedium.copyWith(color: isLightMode ? AppColors.textPrimary : AppColors.secondary),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text('Cancel', style: AppTypography.titleMedium.copyWith(color: AppColors.primary)),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text('Exit', style: AppTypography.titleMedium.copyWith(color: AppColors.pinkCarnation)),
+            ),
+          ],
+        );
+      }
+    );
+
+    return shouldPop ?? false;
+  }
+
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<ThemeMode>(
@@ -186,25 +224,39 @@ class _CognitiveReframingPageState
       builder: (context, themeMode, child) {
         final bool isLightMode = themeMode == ThemeMode.light;
 
-        return Scaffold(
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          body: SafeArea(
-            child: _isSubmitted
-                ? _buildCompletionScreen(isLightMode)
-                : SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.arrow_back_ios_new),
-                      color: AppColors.primary,
-                      tooltip: 'Back',
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, result) async {
+            if (didPop) return;
+            final shouldPop = await _onWillPop();
+            if (shouldPop && context.mounted) {
+              Navigator.of(context).pop();
+            }
+          },
+          child: Scaffold(
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            body: SafeArea(
+              child: _isSubmitted
+                  ? _buildCompletionScreen(isLightMode)
+                  : SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: IconButton(
+                        onPressed: () async {
+                          final shouldPop = await _onWillPop();
+                          if (shouldPop && context.mounted) {
+                            Navigator.of(context).pop();
+                          }
+                        },
+                        icon: const Icon(Icons.arrow_back_ios_new),
+                        color: AppColors.primary,
+                        tooltip: 'Back',
+                      ),
                     ),
-                  ),
                   const SizedBox(height: 8),
                   Text(
                     'Reframing Journal',
@@ -273,6 +325,7 @@ class _CognitiveReframingPageState
                 ],
               ),
             ),
+          ),
           ),
         );
       },

@@ -101,8 +101,12 @@ class DisclaimerPage extends StatelessWidget {
                 '2. Symptom Scope',
                 'Anxiety manifests differently in each person. '
                     'The symptoms that the system can detect have been '
-                    'limited to the seven most recurring symptoms '
-                    'under the anxiety umbrella.',
+                    'limited to the seven most recurring symptoms identified '
+                    'from the participants of the study. Furthermore, please '
+                    'note that the muscle tension symptom detected in this '
+                    'application is limited to facial tension only, '
+                    'as this is the only manifestation of the symptom '
+                    'that is visible externally.',
               ),
 
               _buildDisclaimerSection(
@@ -164,9 +168,9 @@ class DisclaimerPage extends StatelessWidget {
                     'severe or sudden symptoms. Seek immediate help '
                     'from a qualified healthcare professional or '
                     'local emergency services when needed. You may '
-                    'also reach out to a trusted adult for support.'
-                    'If help is unavailable and you are in a crisis,'
-                    'please contact the National Mental Health'
+                    'also reach out to a trusted adult for support. '
+                    'If help is unavailable and you are in a crisis, '
+                    'please contact the National Mental Health '
                     'Crisis Hotline at:\n\n'
                     '• Nationwide Landline Toll-Free: 1553 or 1800-1888-1553\n'
                     '• Smart / TNT: 0919-057-1553, 0908-639-2672, or 1800-1888-1553\n'

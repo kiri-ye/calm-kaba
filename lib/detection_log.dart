@@ -67,7 +67,7 @@ class _DetectionLogPageState extends State<DetectionLogPage> {
               width: 120, // Increased size to fill space better
               height: 120,
               child: SvgPicture.asset(
-                'assets/images/pufferfishFinal.svg',
+                'assets/images/pufferFish.svg',
                 fit: BoxFit.contain,
               ),
             ),

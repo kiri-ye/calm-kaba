@@ -72,8 +72,12 @@ class _SymptomListPageState extends State<SymptomListPage> {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: isLightMode ? Theme.of(context).extension<AppColorsExtension>()!.cardBackground : Colors.white,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
+        border: isLightMode ? Border.all(
+            color: Colors.grey.shade300,
+            width: 1) : null,
+
       ),
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
@@ -84,13 +88,13 @@ class _SymptomListPageState extends State<SymptomListPage> {
           title: Text(
             title,
             style: AppTypography.titleLarge.copyWith(
-              color: isLightMode ? AppColors.textPrimary : AppColors.primary,
+              color: isLightMode ? AppColors.arden : AppColors.primary,
             ),
           ),
           subtitle: Text(
             data['desc'],
             style: AppTypography.bodySmall.copyWith(
-              color: isLightMode ? AppColors.textPrimary : AppColors.primary.withValues(alpha: 0.8),
+              color: isLightMode ? AppColors.primary : AppColors.primary.withValues(alpha: 0.8),
             ),
           ),
           children: [
@@ -117,7 +121,7 @@ class _SymptomListPageState extends State<SymptomListPage> {
                   // Overview Section
                   Text(
                     'Overview',
-                    style: AppTypography.titleLarge.copyWith(color: AppColors.pinkCarnation),
+                    style: AppTypography.titleLarge.copyWith(color: isLightMode ? AppColors.primary : AppColors.pinkCarnation),
                   ),
                   const SizedBox(height: 12),
                   ...(data['overview'] as List<String>).map((paragraph) => Padding(
@@ -129,7 +133,7 @@ class _SymptomListPageState extends State<SymptomListPage> {
                   // Visible Signs Section
                   Text(
                     'Visible Signs',
-                    style: AppTypography.titleLarge.copyWith(color: AppColors.pinkCarnation),
+                    style: AppTypography.titleLarge.copyWith(color: isLightMode ? AppColors.primary : AppColors.pinkCarnation),
                   ),
                   const SizedBox(height: 8),
                   ...(data['signs'] as List<String>).map((sign) => _buildBulletPoint(sign)),
@@ -139,7 +143,7 @@ class _SymptomListPageState extends State<SymptomListPage> {
                     const SizedBox(height: 24),
                     Text(
                       'Common Treatments',
-                      style: AppTypography.titleLarge.copyWith(color: AppColors.pinkCarnation),
+                      style: AppTypography.titleLarge.copyWith(color: isLightMode ? AppColors.primary : AppColors.pinkCarnation),
                     ),
                     const SizedBox(height: 8),
                     ...(data['treatments'] as List<String>).map((treatment) => _buildBulletPoint(treatment)),
@@ -159,8 +163,9 @@ class _SymptomListPageState extends State<SymptomListPage> {
                       child: Text(
                         link,
                         style: AppTypography.bodyMedium.copyWith(
-                          color: Colors.blue,
+                          color: AppColors.primary,
                           decoration: TextDecoration.underline,
+                          decorationColor: AppColors.primary
                         ),
                       ),
                     ),
@@ -210,12 +215,12 @@ class _SymptomListPageState extends State<SymptomListPage> {
                   controller: _searchController,
                   decoration: InputDecoration(
                     hintText: 'Search...',
-                    hintStyle: AppTypography.bodyMedium.copyWith(color: isLightMode ? AppColors.textPrimary.withValues(alpha: 0.5) : AppColors.primary.withValues(alpha: 0.5)),
-                    suffixIcon: Icon(Icons.search, color: isLightMode ? AppColors.textPrimary : AppColors.primary),
+                    hintStyle: AppTypography.bodyMedium.copyWith(color: isLightMode ? AppColors.arden.withValues(alpha: 0.5) : AppColors.primary.withValues(alpha: 0.5)),
+                    suffixIcon: Icon(Icons.search, color: isLightMode ? AppColors.arden : AppColors.primary),
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                   ),
-                  style: AppTypography.bodyMedium.copyWith(color: isLightMode ? AppColors.textPrimary : AppColors.primary),
+                  style: AppTypography.bodyMedium.copyWith(color: isLightMode ? AppColors.arden : AppColors.primary),
                 ),
               ),
               const SizedBox(height: 24),
