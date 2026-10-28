@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'theme/design_system.dart';
 import 'services/log_service.dart';
 
@@ -61,13 +60,12 @@ class _DetectionLogPageState extends State<DetectionLogPage> {
         padding: const EdgeInsets.all(20.0),
         child: Row(
           children: [
-            // Pufferfish SVG
             Container(
               alignment: Alignment.center,
-              width: 120, // Increased size to fill space better
-              height: 120,
-              child: SvgPicture.asset(
-                'assets/images/pufferFish.svg',
+              width: 140, // Increased size to fill space better
+              height: 140,
+              child: Image.asset(
+                'assets/images/headerFish.png',
                 fit: BoxFit.contain,
               ),
             ),
