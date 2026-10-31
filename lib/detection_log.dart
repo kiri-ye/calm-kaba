@@ -162,13 +162,17 @@ class _DetectionLogPageState extends State<DetectionLogPage> {
               children: [
                 Text(
                   log.symptom,
-                  style: AppTypography.titleMedium.copyWith(color: AppColors.primary),
+                  style: AppTypography.titleMedium.copyWith(color: Theme.of(context).brightness == Brightness.light
+                      ? AppColors.tertiary
+                      : Colors.white,),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   dateStr,
                   style: AppTypography.bodySmall.copyWith(
-                    color: AppColors.primary.withValues(alpha: 0.7),
+                      color: Theme.of(context).brightness == Brightness.light
+                          ? AppColors.tertiary
+                          : Colors.white,
                   ),
                 ),
               ],
