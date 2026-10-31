@@ -340,7 +340,7 @@ class _HomePageState extends State<HomePage> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Text(
-                          'Switch to Simple Mode',
+                          'Switch to Light Mode',
                           style: AppTypography.titleSmall.copyWith(color: AppColors.primary),
                         ),
                         const SizedBox(width: 8),

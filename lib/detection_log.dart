@@ -138,7 +138,9 @@ class _DetectionLogPageState extends State<DetectionLogPage> {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).brightness == Brightness.light
+          ? AppColors.tertiary
+          : Colors.white,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
